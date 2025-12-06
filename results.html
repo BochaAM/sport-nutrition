@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результаты подбора</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .results-header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 40px;
+        }
+        
+        .filters-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .filter-tag {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .products-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            height: 200px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3498db;
+            font-size: 60px;
+        }
+        
+        .product-info {
+            padding: 25px;
+        }
+        
+        .product-category {
+            color: #3498db;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .product-name {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+        
+        .product-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 15px 0;
+        }
+        
+        .product-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .tag {
+            background: #e3f2fd;
+            color: #3498db;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .no-results i {
+            font-size: 60px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .sort select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>SPORTNUTRITION</span>
+            </div>
+            <nav>
+                <a href="index.html">Главная</a>
+                <a href="quiz.html">Пройти заново</a>
+            </nav>
+        </header>
+
+        <!-- Заголовок результатов -->
+        <div class="results-header">
+            <h1>Ваши рекомендации</h1>
+            <p>На основе ваших ответов система подобрала оптимальные варианты</p>
+            <div class="filters-tags" id="filtersTags">
+                <!-- Фильтры будут добавляться через JS -->
+            </div>
+        </div>
+
+        <!-- Управление -->
+        <div class="controls">
+            <div class="sort">
+                <label for="sortSelect" style="margin-right: 10px;">Сортировка:</label>
+                <select id="sortSelect" onchange="sortProducts()">
+                    <option value="recommended">Рекомендованные</option>
+                    <option value="price-low">Цена: по возрастанию</option>
+                    <option value="price-high">Цена: по убыванию</option>
+                </select>
+            </div>
+            <button class="btn" onclick="window.location.href='quiz.html'">
+                <i class="fas fa-redo"></i> Новый подбор
+            </button>
+        </div>
+
+        <!-- Товары -->
+        <div id="productsContainer">
+            <!-- Товары будут добавляться через JavaScript -->
+        </div>
+
+        <!-- Если нет результатов -->
+        <div id="noResults" class="no-results" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h2>По вашему запросу ничего не найдено</h2>
+            <p>Попробуйте изменить параметры подбора</p>
+            <a href="quiz.html" class="btn" style="margin-top: 20px;">
+                <i class="fas fa-arrow-left"></i> Вернуться к квизу
+            </a>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // База данных товаров
+        const products = [
+            {
+                id: 1,
+                name: "Сывороточный протеин Gold Standard",
+                category: "Протеин",
+                price: 2999,
+                description: "24 г белка на порцию, быстрое усвоение, отличный вкус",
+                goal: "масса",
+                priceCategory: "средний",
+                tags: ["Протеин", "Набор массы"],
+                icon: "💪"
+            },
+            {
+                id: 2,
+                name: "L-карнитин 3000",
+                category: "Жиросжигатель",
+                price: 1599,
+                description: "Ускоряет сжигание жира, повышает энергию на тренировках",
+                goal: "похудение",
+                priceCategory: "бюджет",
+                tags: ["Похудение", "Энергия"],
+                icon: "🔥"
+            },
+            {
+                id: 3,
+                name: "BCAA 2:1:1 комплекс",
+                category: "Аминокислоты",
+                price: 2499,
+                description: "Восстановление мышц, снижение усталости, защита от катаболизма",
+                goal: "восстановление",
+                priceCategory: "средний",
+                tags: ["Восстановление", "Аминокислоты"],
+                icon: "⚡"
+            },
+            {
+                id: 4,
+                name: "Креатин моногидрат",
+                category: "Креатин",
+                price: 1299,
+                description: "Увеличение силы и мышечной массы, улучшение выносливости",
+                goal: "масса",
+                priceCategory: "бюджет",
+                tags: ["Креатин", "Сила"],
+                icon: "🏋️"
+            },
+            {
+                id: 5,
+                name: "Предтренировочный комплекс",
+                category: "Энергия",
+                price: 3499,
+                description: "Энергия, фокус, выносливость, пампинг",
+                goal: "выносливость",
+                priceCategory: "премиум",
+                tags: ["Энергия", "Фокус"],
+                icon: "🚀"
+            },
+            {
+                id: 6,
+                name: "Витаминно-минеральный комплекс",
+                category: "Витамины",
+                price: 1999,
+                description: "Поддержка иммунитета, общее здоровье, восстановление",
+                goal: "восстановление",
+                priceCategory: "средний",
+                tags: ["Витамины", "Здоровье"],
+                icon: "🌿"
+            }
+        ];
+
+        // Загрузка результатов
+        document.addEventListener('DOMContentLoaded', function() {
+            displayResults();
+        });
+
+        // Показать результаты
+        function displayResults() {
+            // Получаем ответы из localStorage
+            const answers = JSON.parse(localStorage.getItem('quizAnswers') || '{}');
+            
+            // Показываем выбранные фильтры
+            displaySelectedFilters(answers);
+            
+            // Фильтруем товары
+            const filteredProducts = filterProducts(answers);
+            
+            // Сортируем товары
+            const sortedProducts = sortProductsList(filteredProducts, 'recommended');
+            
+            // Отображаем товары
+            displayProducts(sortedProducts);
+        }
+
+        // Показать выбранные фильтры
+        function displaySelectedFilters(answers) {
+            const filtersTags = document.getElementById('filtersTags');
+            let tagsHTML = '';
+            
+            // Маппинг значений на читаемые названия
+            const valueToText = {
+                'масса': 'Набор массы',
+                'похудение': 'Похудение',
+                'выносливость': 'Выносливость',
+                'восстановление': 'Восстановление',
+                'бюджет': 'Бюджетный',
+                'средний': 'Средний',
+                'премиум': 'Премиум',
+                'нет': 'Без ограничений',
+                'лактоза': 'Без лактозы',
+                'кофеин': 'Без кофеина',
+                'сахар': 'Без сахара',
+                'протеин': 'Протеин',
+                'аминокислоты': 'Аминокислоты',
+                'креатин': 'Креатин',
+                'витамины': 'Витамины',
+                'низкий': 'Низкая активность',
+                'средний': 'Средняя активность',
+                'высокий': 'Высокая активность'
+            };
+            
+            // Показываем выбранные ответы
+            Object.values(answers).forEach(value => {
+                const text = valueToText[value] || value;
+                tagsHTML += `<div class="filter-tag">${text}</div>`;
+            });
+            
+            filtersTags.innerHTML = tagsHTML || '<div class="filter-tag">Все товары</div>';
+        }
+
+        // Фильтрация товаров
+        function filterProducts(answers) {
+            if (Object.keys(answers).length === 0) {
+                return products; // Показываем все товары если нет ответов
+            }
+            
+            return products.filter(product => {
+                // Проверка по цели (вопрос 0)
+                if (answers[0] && product.goal !== answers[0]) {
+                    return false;
+                }
+                
+                // Проверка по цене (вопрос 1)
+                if (answers[1] && product.priceCategory !== answers[1]) {
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+
+        // Сортировка товаров
+        function sortProducts() {
+            const sortValue = document.getElementById('sortSelect').value;
+            const answers = JSON.parse(localStorage.getItem('quizAnswers') || '{}');
+            const filteredProducts = filterProducts(answers);
+            const sortedProducts = sortProductsList(filteredProducts, sortValue);
+            displayProducts(sortedProducts);
+        }
+
+        // Функция сортировки
+        function sortProductsList(productsList, sortBy) {
+            const sorted = [...productsList];
+            
+            switch (sortBy) {
+                case 'price-low':
+                    return sorted.sort((a, b) => a.price - b.price);
+                case 'price-high':
+                    return sorted.sort((a, b) => b.price - a.price);
+                default:
+                    return sorted; // recommended
+            }
+        }
+
+        // Отображение товаров
+        function displayProducts(productsList) {
+            const container = document.getElementById('productsContainer');
+            const noResults = document.getElementById('noResults');
+            
+            if (productsList.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            const productsHTML = productsList.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <span style="font-size: 60px;">${product.icon}</span>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">${product.category}</div>
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-tags">
+                            ${product.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="product-price">${product.price}₽</div>
+                        <button class="btn" onclick="addToCart(${product.id})" style="width: 100%; margin-top: 10px;">
+                            <i class="fas fa-shopping-cart"></i> Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = `<div class="products-container">${productsHTML}</div>`;
+        }
+
+        // Добавление в корзину
+        function addToCart(productId) {
+            alert('Товар добавлен в корзину! (В реальном проекте здесь была бы логика корзины)');
+        }
+    </script>
+</body>
+</html>
