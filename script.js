@@ -140,3 +140,15 @@ if (typeof module !== 'undefined' && module.exports) {
         showNotification
     };
 }
+function getProductImage(category) {
+    const images = {
+        'Протеин': 'https://images.unsplash.com/photo-1594736797933-d0c6e4d6d6c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        'Жиросжигатель': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        'Аминокислоты': 'https://images.unsplash.com/photo-1627228175160-88c4cde63f09?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        'Креатин': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        'Энергия': 'https://images.unsplash.com/photo-1594736797933-d0c6e4d6d6c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        'Витамины': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+        'Гейнер': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
+    };
+    return images[category] || 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
+}
