@@ -50,14 +50,9 @@
             transform: translateY(-5px);
         }
         
-        .product-image {
-            height: 200px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #3498db;
-            font-size: 60px;
+        <div class="product-image">
+    <img src="${getProductImage(product.category)}" alt="${product.name}">
+</div>
         }
         
         .product-info {
