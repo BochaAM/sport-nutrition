@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квиз - Подбор питания</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #f1f1f1;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            width: 20%;
+            transition: width 0.3s;
+        }
+        
+        .question {
+            display: none;
+        }
+        
+        .question.active {
+            display: block;
+        }
+        
+        .question h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .option {
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 18px;
+        }
+        
+        .option:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .quiz-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>SPORTNUTRITION</span>
+            </div>
+            <a href="index.html" style="text-decoration: none; color: #3498db;">
+                <i class="fas fa-arrow-left"></i> На главную
+            </a>
+        </header>
+
+        <div class="quiz-container">
+            <!-- Прогресс-бар -->
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            
+            <!-- Вопросы -->
+            <div id="quizContent">
+                <!-- Вопросы будут добавляться через JavaScript -->
+            </div>
+            
+            <!-- Навигация -->
+            <div class="quiz-navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">
+                    <i class="fas fa-chevron-left"></i> Назад
+                </button>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()">
+                    Далее <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="btn" id="submitBtn" onclick="submitQuiz()" style="display: none;">
+                    <i class="fas fa-check"></i> Получить результаты
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Данные квиза
+        const quizData = [
+            {
+                question: "Какая ваша основная цель?",
+                options: [
+                    { text: "Набор мышечной массы", value: "масса" },
+                    { text: "Снижение веса / похудение", value: "похудение" },
+                    { text: "Повышение выносливости", value: "выносливость" },
+                    { text: "Восстановление после тренировок", value: "восстановление" }
+                ]
+            },
+            {
+                question: "Какой бюджет на покупку?",
+                options: [
+                    { text: "Бюджетный (до 2000₽)", value: "бюджет" },
+                    { text: "Средний (2000-4000₽)", value: "средний" },
+                    { text: "Премиум (от 4000₽)", value: "премиум" }
+                ]
+            },
+            {
+                question: "Есть ли особенности здоровья?",
+                options: [
+                    { text: "Нет, всё в порядке", value: "нет" },
+                    { text: "Непереносимость лактозы", value: "лактоза" },
+                    { text: "Чувствительность к кофеину", value: "кофеин" },
+                    { text: "Ограничения по сахару", value: "сахар" }
+                ]
+            },
+            {
+                question: "Какой тип продукта интересует?",
+                options: [
+                    { text: "Протеин", value: "протеин" },
+                    { text: "Аминокислоты (BCAA)", value: "аминокислоты" },
+                    { text: "Креатин", value: "креатин" },
+                    { text: "Витамины и минералы", value: "витамины" }
+                ]
+            },
+            {
+                question: "Уровень физической активности?",
+                options: [
+                    { text: "1-2 тренировки в неделю", value: "низкий" },
+                    { text: "3-4 тренировки в неделю", value: "средний" },
+                    { text: "5+ тренировок в неделю", value: "высокий" }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let answers = {};
+
+        // Инициализация квиза
+        function initQuiz() {
+            showQuestion(currentQuestion);
+            updateProgress();
+        }
+
+        // Показать вопрос
+        function showQuestion(index) {
+            const quizContent = document.getElementById('quizContent');
+            const question = quizData[index];
+            
+            let optionsHTML = '';
+            question.options.forEach((option, i) => {
+                const isSelected = answers[index] === option.value;
+                optionsHTML += `
+                    <div class="option ${isSelected ? 'selected' : ''}" 
+                         onclick="selectOption(${index}, '${option.value}')">
+                        ${option.text}
+                    </div>
+                `;
+            });
+            
+            quizContent.innerHTML = `
+                <div class="question active">
+                    <h2>${question.question}</h2>
+                    <div class="options">
+                        ${optionsHTML}
+                    </div>
+                </div>
+            `;
+            
+            updateButtons();
+        }
+
+        // Выбор варианта
+        function selectOption(questionIndex, value) {
+            answers[questionIndex] = value;
+            
+            // Снимаем выделение со всех вариантов
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Выделяем выбранный
+            event.target.classList.add('selected');
+            
+            // Если это последний вопрос, показываем кнопку отправки
+            if (currentQuestion === quizData.length - 1) {
+                document.getElementById('submitBtn').style.display = 'inline-flex';
+                document.getElementById('nextBtn').style.display = 'none';
+            }
+        }
+
+        // Следующий вопрос
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        // Предыдущий вопрос
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion(currentQuestion);
+                updateProgress();
+            }
+        }
+
+        // Обновление прогресса
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        // Обновление кнопок
+        function updateButtons() {
+            document.getElementById('prevBtn').disabled = currentQuestion === 0;
+            document.getElementById('nextBtn').style.display = 
+                currentQuestion === quizData.length - 1 ? 'none' : 'inline-flex';
+        }
+
+        // Отправка квиза
+        function submitQuiz() {
+            // Сохраняем ответы
+            localStorage.setItem('quizAnswers', JSON.stringify(answers));
+            
+            // Переходим на страницу результатов
+            window.location.href = 'results.html';
+        }
+
+        // Запуск квиза при загрузке
+        document.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+</body>
+</html>
